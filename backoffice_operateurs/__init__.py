@@ -9,10 +9,10 @@ __version__ = ".".join(map(str, VERSION))
 from flask import Flask
 from flask.ext.security import Security, SQLAlchemyUserDatastore
 from flask.ext.script import Manager
+from flask.ext.security.utils import verify_and_update_password
 from flask_bootstrap import Bootstrap
 import os
-from models import db, security as security_models, taxis as taxis_models,\
-    administrative as administrative_models
+from models import db, security as security_models
 
 app = Flask(__name__)
 app.config.from_object('default_settings')
@@ -24,6 +24,30 @@ db.init_app(app)
 user_datastore = SQLAlchemyUserDatastore(db, security_models.User,
                             security_models.Role)
 security = Security(app, user_datastore)
+
+
+@app.login_manager.request_loader
+def load_user_from_request(request):
+    auth = request.headers.get('Authorization')
+    if not auth:
+        return None
+    auth_splitted = auth.split(':')
+    if len(auth_splitted) != 2:
+        return None
+    login, password = auth_splitted
+    user = user_datastore.get_user(login.strip())
+    if user is None:
+        return None
+    if not verify_and_update_password(password.strip(), user):
+        return None
+    if not user.is_active():
+        return None
+    return user
+
+
+
+
+
 Bootstrap(app)
 
 manager = Manager(app)
