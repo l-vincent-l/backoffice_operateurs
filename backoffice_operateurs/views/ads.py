@@ -31,6 +31,7 @@ def ads_create_api():
     db.session.commit()
     return jsonify(new_ads.as_dict())
 
+
 @app.route('/ads', methods=['GET', 'POST'])
 @login_required
 def ads():
@@ -38,8 +39,7 @@ def ads():
         return ads_list()
     elif request.method == 'POST':
         return ads_create_api()
-
-
+    abort(405)
 
 
 @app.route('/ads/form', methods=['GET', 'POST'])
