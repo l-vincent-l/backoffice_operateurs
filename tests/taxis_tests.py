@@ -49,7 +49,7 @@ class TestTaxisGet(TaxiGet):
         assert len(r.json['data']) == 1
         taxi = r.json['data'][0]
         for key in ['id', 'operator', 'position', 'vehicle', 'last_update',
-                'crowfly_distance', 'ads', 'driver', 'rating']:
+                'crowfly_distance', 'ads', 'driver', 'rating', 'status']:
             assert key in taxi.keys()
             assert taxi[key] is not None
         for key in ['insee', 'numero']:
