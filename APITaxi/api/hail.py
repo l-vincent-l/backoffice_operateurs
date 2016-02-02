@@ -138,6 +138,7 @@ class Hail(Resource, ValidatorMixin):
             queue='send_hail_'+current_app.config['NOW'])
 
         client = influx_db.get_client(current_app.config['INFLUXDB_TAXIS_DB'])
+        taxi =TaxiModel.query.get(hj['taxi_id'])
         try:
             client.write_points([{
                 "measurement": "hails_created",
