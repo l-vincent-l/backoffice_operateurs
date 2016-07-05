@@ -6,7 +6,7 @@ __homepage__ = "https://github.com/"
 __version__ = ".".join(map(str, VERSION))
 
 from flask import Flask, request_started, request_finished
-import os
+import os, time
 from flask.ext.dogpile_cache import DogpileCache
 
 def create_app(sqlalchemy_uri=None):
@@ -33,9 +33,14 @@ def create_app(sqlalchemy_uri=None):
     from APITaxi_models import db
     db.init_app(app)
     redis_store.init_app(app)
-    redis_store.connection_pool.get_connection(0).can_read()
     redis_store_haillog.init_app(app)
-    redis_store_haillog.connection_pool.get_connection(0).can_read()
+    for i in range(20):
+        try:
+            redis_store.connection_pool.get_connection(0).can_read()
+            redis_store_haillog.connection_pool.get_connection(0).can_read()
+            break
+        except:
+            time.sleep(1)
     from . import api
     api.init_app(app)
 
